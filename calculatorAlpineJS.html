@@ -1,0 +1,138 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v1.9.4/dist/alpine.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <style>
+            .calc-wrapper {
+                position: absolute;
+                width: 250px;
+                left: calc(50% - 125px);
+                top: calc(50% - 165px);
+                display: flex;
+                flex-direction: column;
+                border: 2px solid #e5e5e5;
+                border-radius: 10px;
+                gap: 35px;
+                padding: 30px;
+                font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                max-height: 330px;
+            }
+            .inputedNumber {
+                padding: 5px;
+                background: #777;
+                text-align: right;
+                font-size: 32px;
+                font-family: monospace;
+            }
+            .digits-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                align-content: center;
+                text-align: center;
+                gap: 15px;
+            }
+            .digits-grid > div {
+                padding: 5px;
+                border: 1px solid #e5e5e5;
+                transition: .5s;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+            .digits-grid > div:hover {box-shadow: 2px 2px 8px 1px #ddd}
+        </style>
+    </head>
+    <body x-data="calc()">
+        <div class="calc-wrapper">
+            <div class="inputedNumber" x-text="currentNumber">0</div>
+            <div class="digits-grid">
+                <div @click="clearAll()">AC</div>
+                <div @click="setOperation('sqrt')">&#8730;</div>
+                <div @click="setOperation('pow2')">x<sup>2</sup></div>
+                <div @click="setOperation('%')">%</div>
+                <div @click="setNumber(7)">7</div>
+                <div @click="setNumber(8)">8</div>
+                <div @click="setNumber(9)">9</div>
+                <div @click="setOperation('+')">+</div>
+                <div @click="setNumber(4)">4</div>
+                <div @click="setNumber(5)">5</div>
+                <div @click="setNumber(6)">6</div>
+                <div @click="setOperation('-')">-</div>
+                <div @click="setNumber(1)">1</div>
+                <div @click="setNumber(2)">2</div>
+                <div @click="setNumber(3)">3</div>
+                <div @click="setOperation('*')">*</div>
+                <div @click="negate()">±</div>
+                <div @click="setNumber(0)">0</div>
+                <div @click="makeCount()">=</div>
+                <div @click="setOperation('/')">/</div>
+            </div>
+        </div>
+        <script>
+            function calc() {
+                return {
+                    numberA: null, 
+                    numberB: null, 
+                    currentOperation: '',
+                    currentNumber: 0,
+                    isAllowNumberB: false,
+                    setNumber: function(number) {
+                        if (this.isAllowNumberB) {
+                            this.numberB = this.numberB === null ? number : String(this.numberB) + number;
+                            this.currentNumber = this.numberB;
+                        } else {
+                            this.numberA = this.numberA === null ? number : String(this.numberA) + number;
+                            this.currentNumber = this.numberA;
+                        }
+                    },
+                    setOperation: function(op) {
+                        this.currentOperation = op;
+                        if (this.currentOperation == 'sqrt' || this.currentOperation == 'pow2') {
+                            this.numberB = 2;
+                            this.makeCount();
+                        } else {
+                            this.isAllowNumberB = true;
+                        }
+                    },
+                    negate: function() {
+                        if (this.isAllowNumberB)
+                            this.currentNumber = this.numberB *= -1;
+                        else
+                            this.currentNumber = this.numberA *= -1;
+                    },
+                    clearAll: function() {
+                        this.currentNumber = 0;
+                        this.numberA = this.numberB = this.currentOperation = null;
+                    },
+                    makeCount: function() {
+                        switch(this.currentOperation) {
+                            case '+': 
+                                this.currentNumber = (parseInt(this.numberA) + parseInt(this.numberB)).toFixed(6); 
+                                break;
+                            case '-': 
+                                this.currentNumber = (parseInt(this.numberA) - parseInt(this.numberB)).toFixed(6);
+                                break;
+                            case '/': 
+                                this.currentNumber = (parseFloat(this.numberA) / parseInt(this.numberB)).toFixed(6); 
+                                break;
+                            case '*': 
+                                this.currentNumber = (parseInt(this.numberA) * parseInt(this.numberB)).toFixed(6); 
+                                break;
+                            case '%':
+                                this.currentNumber = (parseFloat(this.numberA) / 100 * parseInt(this.numberB)).toFixed(6);
+                                break;
+                            case 'pow2':
+                                this.currentNumber = (Math.pow(this.numberA, this.numberB)).toFixed(6);
+                                break;
+                            case 'sqrt':
+                                this.currentNumber = (Math.sqrt(this.numberA, this.numberB)).toFixed(6);
+                                break;
+                        }
+                        this.isAllowNumberB = false;
+                        this.numberA = this.currentNumber;
+                        this.numberB = null; 
+                    }
+                }
+            } 
+        </script>
+    </body>
+</html>
